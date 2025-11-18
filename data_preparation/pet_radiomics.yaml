@@ -1,0 +1,25 @@
+imageType:
+  Original: {}
+
+featureClass:
+  shape: []
+  firstorder: []
+  glcm: []
+  glrlm: []
+  glszm: []
+  gldm: []
+  ngtdm: []
+
+setting:
+  resampledPixelSpacing: [2, 2, 2]
+  interpolator: sitkBSpline
+  correctMask: true
+  binWidth: 0.25
+  voxelArrayShift: 0
+  label: 1
+  preCrop: true
+  padDistance: 5
+  force2D: false
+  minimumROIDimensions: 2
+  minimumROISize: 16
+  geometryTolerance: 1e-6
