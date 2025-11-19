@@ -7,7 +7,6 @@ from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryF1Sco
 from .utils import MaskedBatchNorm1d
 from torch.optim.lr_scheduler import LambdaLR
 
-
 def mlp(sizes, act=nn.ReLU, dropout=0.0, batchnorm=False):
     layers = []
     for i in range(len(sizes) - 1):

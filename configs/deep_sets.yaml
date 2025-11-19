@@ -1,5 +1,5 @@
-phi_hidden: 96
-rep_dim: 96
+phi_hidden: 128
+rep_dim: 128
 rho_hidden: 96
 pool: mean
 num_classes: 2

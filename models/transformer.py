@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 import pytorch_lightning as pl
 from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryF1Score
-import numpy as np
 from torch.optim.lr_scheduler import LambdaLR
 from .utils import MaskedBatchNorm1d
+
 
 class RadiomicsTransformer(pl.LightningModule):
     def __init__(

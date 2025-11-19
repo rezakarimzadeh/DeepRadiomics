@@ -10,7 +10,7 @@ class AttentionMIL(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
         super(AttentionMIL, self).__init__()
         self.M = 128
-        self.L = 64
+        self.L = 128
         self.ATTENTION_BRANCHES = 1
         
         self.BN = MaskedBatchNorm1d(input_dim)

@@ -1,0 +1,17 @@
+[
+    {
+        "model": "mil",
+        "Accuracy_Mean": 0.7787319243604005,
+        "Accuracy_STD": 0.049618815400839816,
+        "ROC_AUC_Mean": 0.8612798965740142,
+        "ROC_AUC_STD": 0.05462144233964855,
+        "Precision_Mean": 0.7714035087719299,
+        "Precision_STD": 0.04330171443922777,
+        "Recall_Mean": 0.8705882352941176,
+        "Recall_STD": 0.04921529567847506,
+        "Specificity_Mean": 0.6554945054945055,
+        "Specificity_STD": 0.07077516488972613,
+        "F1_Score_Mean": 0.8176748176748176,
+        "F1_Score_STD": 0.04187866064170009
+    }
+]

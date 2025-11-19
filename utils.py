@@ -32,6 +32,20 @@ def test_model(model, test_loader):
                 all_labels.extend(y.cpu().numpy())
         return np.array(all_labels), np.array(all_preds), np.array(all_probs)
 
+def test_model_graph(model, test_loader):
+        model.eval()
+        all_preds = []
+        all_probs = []
+        all_labels = []
+        with torch.no_grad():
+            for batch in test_loader:
+                logits = model(batch.to(model.device))
+                probs = torch.softmax(logits, dim=1)[:, 1]
+                preds = torch.argmax(logits, dim=1)
+                all_preds.extend(preds.cpu().numpy())
+                all_probs.extend(probs.cpu().numpy())
+                all_labels.extend(batch.y.long().cpu().numpy())
+        return np.array(all_labels), np.array(all_preds), np.array(all_probs)
 
 def compute_classification_metrics(algorithm_name, y_true, y_pred, y_prob):
     accuracy = accuracy_score(y_true, y_pred)

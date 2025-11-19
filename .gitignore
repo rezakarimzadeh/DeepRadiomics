@@ -1,2 +1,3 @@
-tb_logs/
+# tb_logs/
+# Results/
 data_preparation/matched_clinical_data.csv
