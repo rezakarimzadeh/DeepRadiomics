@@ -1,0 +1,17 @@
+[
+    {
+        "model": "graph",
+        "Accuracy_Mean": 0.5599999999999999,
+        "Accuracy_STD": 0.08812278366007284,
+        "ROC_AUC_Mean": 0.5799873737373737,
+        "ROC_AUC_STD": 0.09905270840925996,
+        "Precision_Mean": 0.5168518687132295,
+        "Precision_STD": 0.07270915519724105,
+        "Recall_Mean": 0.6666666666666666,
+        "Recall_STD": 0.019641855032959663,
+        "Specificity_Mean": 0.4727272727272728,
+        "Specificity_STD": 0.15860314838516273,
+        "F1_Score_Mean": 0.5800023632281697,
+        "F1_Score_STD": 0.04924395440322218
+    }
+]

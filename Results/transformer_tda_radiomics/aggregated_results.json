@@ -1,17 +1,17 @@
 [
     {
         "model": "transformer",
-        "Accuracy_Mean": 0.7435891731553579,
-        "Accuracy_STD": 0.07556004671728529,
-        "ROC_AUC_Mean": 0.8719780219780219,
-        "ROC_AUC_STD": 0.046359558667822175,
-        "Precision_Mean": 0.7631062951496388,
-        "Precision_STD": 0.04940455015168718,
-        "Recall_Mean": 0.8,
-        "Recall_STD": 0.08921029934178289,
-        "Specificity_Mean": 0.6697802197802198,
-        "Specificity_STD": 0.07468733325355388,
-        "F1_Score_Mean": 0.7802818096935744,
-        "F1_Score_STD": 0.06533298733313866
+        "Accuracy_Mean": 0.7842788283277716,
+        "Accuracy_STD": 0.07318993312246497,
+        "ROC_AUC_Mean": 0.8663219133807368,
+        "ROC_AUC_STD": 0.045868870830047176,
+        "Precision_Mean": 0.7957043343653251,
+        "Precision_STD": 0.08163850809506128,
+        "Recall_Mean": 0.8470588235294118,
+        "Recall_STD": 0.05261336417646568,
+        "Specificity_Mean": 0.7005494505494505,
+        "Specificity_STD": 0.13402226615232707,
+        "F1_Score_Mean": 0.8191437426731545,
+        "F1_Score_STD": 0.05708743003297162
     }
 ]

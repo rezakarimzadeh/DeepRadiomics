@@ -31,7 +31,7 @@ class AttentionMIL(nn.Module):
             nn.Linear(self.M//2, output_dim)
         )
 
-    def forward(self, x, pad_mask):
+    def forward(self, x, pad_mask, attention=False):
         x = self.BN(x, pad_mask)
         # x: [B, T, F]
         H = self.feature_extractor(x)  # [B, T, H]
@@ -42,6 +42,8 @@ class AttentionMIL(nn.Module):
         M = torch.bmm(A.unsqueeze(1), H).squeeze(1)  # [B, H]
         M = M.view(M.size(0), -1)  # Flatten to [B, H]
         out = self.classifier(M)  # [B, C]
+        if attention:
+            return out, A
         return out
 
 class GatedAttentionMIL(nn.Module):
@@ -117,7 +119,11 @@ class RadiomicsMIL(pl.LightningModule):
         self.log(f"{stage}_auroc", self.auroc(y_hat, y.int()), prog_bar=False)
         self.log(f"{stage}_f1", self.f1(y_hat, y.int()), prog_bar=False)
         return loss
-
+    
+    def get_pred_and_attention(self, x, pad_mask):
+        logits, attention_weights = self.model(x, pad_mask=pad_mask, attention=True)
+        return logits, attention_weights
+    
     def training_step(self, batch, batch_idx):
         return self._shared_step(batch, "train")
 

@@ -18,7 +18,8 @@ class GCN(torch.nn.Module):
         _gcn = GATConv
         # A list of GCNConv layers
         self.convs = torch.nn.ModuleList([_gcn(in_channels=input_dim, out_channels=hidden_dim)])
-        self.convs.extend([_gcn(in_channels=hidden_dim, out_channels=hidden_dim) for i in range(num_layers-2)])
+        if num_layers > 2:
+            self.convs.extend([_gcn(in_channels=hidden_dim, out_channels=hidden_dim) for i in range(num_layers-2)])
         self.convs.extend([_gcn(in_channels=hidden_dim, out_channels=output_dim)])
         # A list of 1D batch normalization layers
         self.bns = torch.nn.ModuleList([torch.nn.BatchNorm1d(hidden_dim) for i in range(num_layers-1)])

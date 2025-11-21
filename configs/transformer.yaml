@@ -9,3 +9,5 @@ max_epochs: 100
 warmup_epochs: 10
 batch_size: 32
 output_dim: 2
+
+tta_lr: 0.0001

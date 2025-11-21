@@ -10,4 +10,4 @@ config:
   output_dim: 2
   warmup_epochs: 10
   weight_decay: 0.0
-input_dim: 110
+input_dim: 107

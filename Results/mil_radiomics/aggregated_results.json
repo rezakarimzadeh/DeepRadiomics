@@ -1,17 +1,17 @@
 [
     {
         "model": "mil",
-        "Accuracy_Mean": 0.7909454949944383,
-        "Accuracy_STD": 0.0690570178544027,
-        "ROC_AUC_Mean": 0.8570782159017453,
-        "ROC_AUC_STD": 0.03236394155554694,
-        "Precision_Mean": 0.7943653250773994,
-        "Precision_STD": 0.05761352339868055,
-        "Recall_Mean": 0.8588235294117647,
-        "Recall_STD": 0.06706914265289049,
-        "Specificity_Mean": 0.7005494505494505,
-        "Specificity_STD": 0.09532170885813351,
-        "F1_Score_Mean": 0.8246816564463624,
-        "F1_Score_STD": 0.055497644146466234
+        "Accuracy_Mean": 0.7380274378939562,
+        "Accuracy_STD": 0.07460906379831996,
+        "ROC_AUC_Mean": 0.743428140486964,
+        "ROC_AUC_STD": 0.05305965806860887,
+        "Precision_Mean": 0.7183982683982684,
+        "Precision_STD": 0.05668351387739013,
+        "Recall_Mean": 0.8941176470588236,
+        "Recall_STD": 0.049215295678475025,
+        "Specificity_Mean": 0.5294871794871795,
+        "Specificity_STD": 0.11937542919984392,
+        "F1_Score_Mean": 0.7964401648612175,
+        "F1_Score_STD": 0.053099850091339565
     }
 ]

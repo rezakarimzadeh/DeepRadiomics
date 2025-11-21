@@ -21,10 +21,14 @@ def test_model(model, test_loader):
         all_preds = []
         all_probs = []
         all_labels = []
+        try:
+            device = model.device
+        except:
+             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         with torch.no_grad():
             for batch in test_loader:
                 x, y, mask = batch['features'], batch['labels'], batch.get('pad_mask', None)
-                logits = model(x.to(model.device), mask.to(model.device) if mask is not None else None)
+                logits = model(x.to(device), mask.to(device) if mask is not None else None)
                 probs = torch.softmax(logits, dim=1)[:, 1]
                 preds = torch.argmax(logits, dim=1)
                 all_preds.extend(preds.cpu().numpy())
@@ -37,9 +41,13 @@ def test_model_graph(model, test_loader):
         all_preds = []
         all_probs = []
         all_labels = []
+        try:
+            device = model.device
+        except:
+             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         with torch.no_grad():
             for batch in test_loader:
-                logits = model(batch.to(model.device))
+                logits = model(batch.to(device))
                 probs = torch.softmax(logits, dim=1)[:, 1]
                 preds = torch.argmax(logits, dim=1)
                 all_preds.extend(preds.cpu().numpy())

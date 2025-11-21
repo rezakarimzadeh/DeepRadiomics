@@ -14,17 +14,16 @@ def read_json(file_path):
 
 
 class Sequence2GraphDataset(Dataset):
-    def __init__(self, data_root, data_dict, train, use_tda):
+    def __init__(self, data_root, data_dict, use_coords, use_demographic):
         '''
         data_root: root directory containing sample folders
         data_dict: list of dicts, each dict contains {sample_dir_name: sample_info}
         train: bool, whether in training mode (for data augmentation)
-        use_tda: bool, whether to use TDA features along with radiomics
+        use_coords: bool, whether to use TDA features along with radiomics
         '''
         self.data_root = data_root
         self.data_dict = data_dict
-        self.train = train
-        self.aggregated_data = self.prepare_data(data_dict, data_root, use_tda)
+        self.aggregated_data = self.prepare_data(data_dict, data_root, use_coords, use_demographic)
     
     def __len__(self):
         return len(self.pyg_dataset)
@@ -32,7 +31,7 @@ class Sequence2GraphDataset(Dataset):
     def __getitem__(self, idx):
         return self.pyg_dataset[idx]
     
-    def prepare_data(self, data_dict, data_root, use_tda):
+    def prepare_data(self, data_dict, data_root, use_coords, use_demographic):
         self.pyg_dataset = []
         self.aggregated_data = list()
         for idx in range(len(data_dict)):
@@ -40,25 +39,22 @@ class Sequence2GraphDataset(Dataset):
             hl_label = 0 if sample_info['Binary Label'] == 'NHL' else 1
             radiomics_path = os.path.join(data_root, sample_dir_name, 'radiomics', 'radiomics_each_lesion.json')
             radiomics_features_dict = read_json(radiomics_path)
-            if use_tda:
-                tda_path = os.path.join(data_root, sample_dir_name, 'radiomics', 'tda_features_each_lesion.json')
-                if not os.path.exists(tda_path):
-                    continue
-                tda_features_dict = read_json(tda_path)
 
             aggregated_radiomics = []
             nodes_coordinates_list = list(radiomics_features_dict.keys())
             for node, radiomics_features in radiomics_features_dict.items():
                 radiomics_list = list(radiomics_features.values())
-                demographic_info = [sample_info['Gender(Male=0, Fmale:1)'], sample_info['Age'], sample_info['Stage']]
-                if use_tda:
-                    tda_features = list(tda_features_dict.get(node, [0]*8))
-                    radiomics_list = radiomics_list + tda_features
+                if use_demographic:
+                    demographic_info = [sample_info['Gender(Male=0, Fmale:1)'], sample_info['Age']]
+                    radiomics_list = radiomics_list + demographic_info
+                if use_coords:
+                    coords_features = list(ast.literal_eval(node))
+                    radiomics_list = radiomics_list + coords_features
 
-                features = np.array(radiomics_list + demographic_info)
+                features = np.array(radiomics_list)
                 aggregated_radiomics.append(features)
             if not aggregated_radiomics:
-                print(f"No valid lesions found for {sample_dir_name}, skipping.")
+                # print(f"No valid lesions found for {sample_dir_name}, skipping.")
                 continue
             seq = torch.tensor(np.array(aggregated_radiomics), dtype=torch.float32)
             label = torch.tensor(hl_label, dtype=torch.float32)
@@ -109,14 +105,23 @@ def get_masih_data_folds(data_root, fold_index):
     return split_data['train'], split_data['val'], split_data['test']
 
 
-def get_dataloaders_graph(data_root, use_tda, batch_size, fold_index):    
-    masih_train_dict, masih_val_dict, masih_test_dict = get_masih_data_folds(data_root, fold_index)
-    masih_root = os.path.join(data_root, "Masih-SUV")
+def get_dataloaders_graph(cfg, fold_index):    
+    masih_train_dict, masih_val_dict, masih_test_dict = get_masih_data_folds(cfg.data_root, fold_index)
+    masih_root = os.path.join(cfg.data_root, "Masih-SUV")
     print(f"Train size: {len(masih_train_dict)}, Val size: {len(masih_val_dict)}, Test size: {len(masih_test_dict)}")
-    train_dataset = Sequence2GraphDataset(masih_root, masih_train_dict, train=True, use_tda=use_tda)
-    val_dataset = Sequence2GraphDataset(masih_root, masih_val_dict, train=False, use_tda=use_tda)
-    test_dataset = Sequence2GraphDataset(masih_root, masih_test_dict, train=False, use_tda=use_tda)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    train_dataset = Sequence2GraphDataset(masih_root, masih_train_dict, use_coords=cfg.use_coords, use_demographic=cfg.use_demographic)
+    val_dataset = Sequence2GraphDataset(masih_root, masih_val_dict, use_coords=cfg.use_coords, use_demographic=cfg.use_demographic)
+    test_dataset = Sequence2GraphDataset(masih_root, masih_test_dict, use_coords=cfg.use_coords, use_demographic=cfg.use_demographic)
+    train_loader = DataLoader(train_dataset, batch_size=cfg.batch_size, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_dataset, batch_size=256, shuffle=False, num_workers=2)
     test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=2)
     return train_loader, val_loader, test_loader
+
+def get_center2_as_test_loader_graph(cfg):
+    test_dataset = read_json(os.path.join(cfg.data_root, "dataset_directories.json"))
+    center2_root = os.path.join(cfg.data_root, "Razavi-SUV")
+    center2_test_dict = test_dataset.get("Razavi-SUV", [])
+    print(f"Razavi Test size: {len(center2_test_dict)}")
+    test_dataset = Sequence2GraphDataset(center2_root, center2_test_dict, use_coords=cfg.use_coords, use_demographic=cfg.use_demographic)
+    test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=2)
+    return test_loader

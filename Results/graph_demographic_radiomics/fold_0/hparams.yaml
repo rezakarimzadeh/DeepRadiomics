@@ -1,0 +1,9 @@
+config:
+  batch_size: 32
+  dropout: 0.05
+  hidden_dim: 128
+  lr: 0.1
+  max_epochs: 100
+  num_classes: 2
+  num_layers: 3
+input_dim: 109

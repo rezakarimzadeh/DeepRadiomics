@@ -1,0 +1,17 @@
+[
+    {
+        "model": "transformer",
+        "Accuracy_Mean": 0.8185465331850204,
+        "Accuracy_STD": 0.04016990346049006,
+        "ROC_AUC_Mean": 0.9101486748545572,
+        "ROC_AUC_STD": 0.05255875747700479,
+        "Precision_Mean": 0.793396995161701,
+        "Precision_STD": 0.05305435272993081,
+        "Recall_Mean": 0.9294117647058823,
+        "Recall_STD": 0.04921529567847505,
+        "Specificity_Mean": 0.6723443223443224,
+        "Specificity_STD": 0.1025771838858271,
+        "F1_Score_Mean": 0.8543857503609825,
+        "F1_Score_STD": 0.028480865658989444
+    }
+]

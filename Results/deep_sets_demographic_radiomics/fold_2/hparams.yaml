@@ -1,0 +1,11 @@
+config:
+  batch_size: 32
+  dropout: 0.0
+  lr: 0.01
+  max_epochs: 100
+  num_classes: 2
+  phi_hidden: 128
+  pool: mean
+  rep_dim: 128
+  rho_hidden: 96
+input_dim: 109

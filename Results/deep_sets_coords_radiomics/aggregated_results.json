@@ -1,0 +1,17 @@
+[
+    {
+        "model": "deep_sets",
+        "Accuracy_Mean": 0.7918502039302929,
+        "Accuracy_STD": 0.04461233152038631,
+        "ROC_AUC_Mean": 0.8609782374488256,
+        "ROC_AUC_STD": 0.056399333666117615,
+        "Precision_Mean": 0.7758130504125929,
+        "Precision_STD": 0.062421366338025426,
+        "Recall_Mean": 0.9058823529411765,
+        "Recall_STD": 0.03221897397089213,
+        "Specificity_Mean": 0.63992673992674,
+        "Specificity_STD": 0.14672804618531962,
+        "F1_Score_Mean": 0.8336263736263737,
+        "F1_Score_STD": 0.024539937576825037
+    }
+]
