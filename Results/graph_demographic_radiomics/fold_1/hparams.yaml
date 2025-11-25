@@ -1,9 +1,10 @@
 config:
   batch_size: 32
-  dropout: 0.05
+  dropout: 0.0
   hidden_dim: 128
-  lr: 0.1
+  lr: 0.08
   max_epochs: 100
   num_classes: 2
   num_layers: 3
+  tta_lr: 0.001
 input_dim: 109

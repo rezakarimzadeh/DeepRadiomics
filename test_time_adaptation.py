@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 from main import model_generator, data_function_generator_dl
 
-def setup_tent(model, tta_lr, steps=1):
+def setup_tent(model, tta_lr, steps=10):
     """Set up tent adaptation.
 
     Configure the model for training + feature modulation by batch statistics,
@@ -124,13 +124,13 @@ if __name__ == '__main__':
         model_name = 'transformer'
         data_root = "/home/reza/Documents/Reza_projects/08_drarabi_lymphnodes/new_dataset"
         results_root = "./Results"
-        use_coords = True
+        use_coords = False
         use_demographic = True
         tta_method = 'norm'
     
     cfg = Args()
-    for method in ['tent']: #, 'norm'
-        for model in ['graph', 'transformer']: #, 'deep_sets', 'mil'
+    for method in ['tent', 'norm']: #, 'norm'
+        for model in ['graph', 'transformer', 'deep_sets', 'mil']: #'graph', 'transformer', 'deep_sets', 'mil'
             cfg.tta_method = method
             cfg.model_name = model
             fivefold_cv_tta(cfg)

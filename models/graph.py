@@ -22,7 +22,7 @@ class GCN(torch.nn.Module):
             self.convs.extend([_gcn(in_channels=hidden_dim, out_channels=hidden_dim) for i in range(num_layers-2)])
         self.convs.extend([_gcn(in_channels=hidden_dim, out_channels=output_dim)])
         # A list of 1D batch normalization layers
-        self.bns = torch.nn.ModuleList([torch.nn.BatchNorm1d(hidden_dim) for i in range(num_layers-1)])
+        # self.bns = torch.nn.ModuleList([torch.nn.BatchNorm1d(hidden_dim) for i in range(num_layers-1)])
 
         # The log softmax layer
         self.softmax = torch.nn.LogSoftmax()
@@ -36,11 +36,12 @@ class GCN(torch.nn.Module):
     def reset_parameters(self):
         for conv in self.convs:
             conv.reset_parameters()
-        for bn in self.bns:
-            bn.reset_parameters()
+        # for bn in self.bns:
+        #     bn.reset_parameters()
 
     def forward(self, x, adj_t, edge_weight):
-        for gcn, bn in zip(self.convs[:-1], self.bns):
+        # for gcn, bn in zip(self.convs[:-1], self.bns):
+        for gcn in self.convs[:-1]:
             x = gcn(x, adj_t, edge_weight)
             # x = bn(x)
             x = F.relu(x)

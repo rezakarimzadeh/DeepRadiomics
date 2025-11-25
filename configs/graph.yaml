@@ -1,8 +1,8 @@
 hidden_dim: 128
 num_classes: 2
 num_layers: 3
-dropout: 0.05
-lr: 0.1
+dropout: 0.0
+lr: 0.08
 max_epochs: 100
 batch_size: 32
 

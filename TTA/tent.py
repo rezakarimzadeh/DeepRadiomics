@@ -81,6 +81,8 @@ def collect_params(model):
                 if np in ['weight', 'bias']:  # weight is scale, bias is shift
                     params.append(p)
                     names.append(f"{nm}.{np}")
+        
+    print(f"Collected {len(params)} parameters for tent adaptation.")
     return params, names
 
 
@@ -111,6 +113,7 @@ def configure_model(model):
             m.track_running_stats = False
             m.running_mean = None
             m.running_var = None
+
     return model
 
 

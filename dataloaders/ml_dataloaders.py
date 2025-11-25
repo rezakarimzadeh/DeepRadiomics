@@ -36,7 +36,7 @@ def prepare_data(data_dict, data_root, use_coords, use_demographic):
             continue
         aggregated_radiomics = np.array(aggregated_radiomics)
         set_level_aggrigation = np.concatenate([aggregated_radiomics.mean(axis=0),
-                                                aggregated_radiomics.std(axis=0),
+                                                # aggregated_radiomics.std(axis=0),
                                                 np.median(aggregated_radiomics, axis=0),
                                                 aggregated_radiomics.max(axis=0),
                                                 aggregated_radiomics.min(axis=0)])
