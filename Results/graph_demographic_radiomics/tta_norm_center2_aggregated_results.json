@@ -1,17 +1,17 @@
 [
     {
         "model": "graph",
-        "Accuracy_Mean": 0.63,
-        "Accuracy_STD": 0.1514513123086096,
-        "ROC_AUC_Mean": 0.693939393939394,
-        "ROC_AUC_STD": 0.16369122899425,
-        "Precision_Mean": 0.6236130413269367,
-        "Precision_STD": 0.18087565710094766,
-        "Recall_Mean": 0.5777777777777777,
-        "Recall_STD": 0.17502204446692626,
-        "Specificity_Mean": 0.6727272727272727,
-        "Specificity_STD": 0.22590497526889414,
-        "F1_Score_Mean": 0.5852192337366267,
-        "F1_Score_STD": 0.13935075777411998
+        "Accuracy_Mean": 0.5900000000000001,
+        "Accuracy_STD": 0.12881673027988252,
+        "ROC_AUC_Mean": 0.6851010101010101,
+        "ROC_AUC_STD": 0.16014486741169814,
+        "Precision_Mean": 0.602083397058162,
+        "Precision_STD": 0.16170539383916033,
+        "Recall_Mean": 0.45555555555555555,
+        "Recall_STD": 0.20279680276048867,
+        "Specificity_Mean": 0.7,
+        "Specificity_STD": 0.24180792869582518,
+        "F1_Score_Mean": 0.4888346270666249,
+        "F1_Score_STD": 0.1415452731569917
     }
 ]

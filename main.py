@@ -7,6 +7,7 @@ from models.deep_sets import RadiomicsDeepSets
 from models.transformer import RadiomicsTransformer
 from models.MIL import RadiomicsMIL
 from models.graph import RadiomicsGraph
+from models.set_transformer import RadiomicsSetTransformer
 from models.classical_ml import get_ml_models
 from dataloaders.deep_dataloaders import get_dataloaders_deep_learning, get_center2_as_test_loader
 from dataloaders.graph_dataloader import get_dataloaders_graph, get_center2_as_test_loader_graph
@@ -28,11 +29,13 @@ def model_generator(model_name: str):
         return RadiomicsMIL
     elif model_name == "graph":
         return RadiomicsGraph
+    elif model_name == "set_transformer":
+        return RadiomicsSetTransformer
     else:
         raise ValueError(f"Model {model_name} not found in model zoo.")
 
 def data_function_generator_dl(args):
-    if args.model_name in ["transformer", "deep_sets", "mil"]:
+    if args.model_name in ["transformer", "deep_sets", "mil", "set_transformer"]:
         return get_dataloaders_deep_learning, get_center2_as_test_loader, test_model
     elif args.model_name == "graph":
         return get_dataloaders_graph, get_center2_as_test_loader_graph, test_model_graph
@@ -181,7 +184,7 @@ def fivefold_cv(argparse):
     center2_aggrigation_list = []
     for fold_idx in range(5):
         print(f"Training fold {fold_idx+1}/5")
-        if argparse.model_name in ["transformer", "deep_sets", "mil", "graph"]:
+        if argparse.model_name in ["transformer", "deep_sets", "mil", "graph", "set_transformer"]:
             classification_results, center2_classification_results, model_save_path = train_dl_model(argparse, fold_idx)
         elif argparse.model_name == "ml_models":
             classification_results, center2_classification_results, model_save_path = train_ml_model(argparse, fold_idx)
@@ -242,7 +245,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Train and evaluate models with 5-fold cross-validation.")
     parser.add_argument("--data_root", type=str, default="/home/reza/Documents/Reza_projects/08_drarabi_lymphnodes/new_dataset", help="Base directory for the dataset.")
-    parser.add_argument("--model_name", type=str, default="mil", choices=["transformer", "deep_sets", "mil", "ml_models", 'graph'], help="Name of the model to train.")
+    parser.add_argument("--model_name", type=str, default="mil", choices=["transformer", "deep_sets", "mil", "ml_models", 'graph', 'set_transformer'], help="Name of the model to train.")
     parser.add_argument("--use_coords", type=str2bool, default=False, help="Whether to use coordinates features.")
     parser.add_argument("--use_demographic", type=str2bool, default=False, help="Whether to use demographic features.")
     args = parser.parse_args()

@@ -1,5 +1,5 @@
 class config:
-    DATA_PATH = "../../dataset"
+    DATA_PATH = "../../new_dataset"
     clinical_data = f"{DATA_PATH}/ClinicalData.xlsx"
     SAVE_DIR = "./"
 

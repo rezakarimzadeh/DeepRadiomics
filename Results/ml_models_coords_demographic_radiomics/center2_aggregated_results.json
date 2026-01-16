@@ -120,6 +120,21 @@
         "F1_Score_STD": 0.00708119421374895
     },
     {
+        "model": "TabPFN",
+        "Accuracy_Mean": 0.7825,
+        "Accuracy_STD": 0.024366985862022437,
+        "ROC_AUC_Mean": 0.8338383838383839,
+        "ROC_AUC_STD": 0.027990035003260107,
+        "Precision_Mean": 0.7921010818120352,
+        "Precision_STD": 0.016371951214983072,
+        "Recall_Mean": 0.7,
+        "Recall_STD": 0.056927504255331135,
+        "Specificity_Mean": 0.85,
+        "Specificity_STD": 0.012448239943299215,
+        "F1_Score_Mean": 0.7424450059744178,
+        "F1_Score_STD": 0.03691677977889098
+    },
+    {
         "model": "XGBoost",
         "Accuracy_Mean": 0.6849999999999999,
         "Accuracy_STD": 0.05258920991990657,

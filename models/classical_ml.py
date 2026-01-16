@@ -11,11 +11,12 @@ from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.ensemble import AdaBoostClassifier
 # from pytorch_tabnet.tab_model import TabNetClassifier
 from sklearn.neural_network import MLPClassifier
-
+from tabpfn import TabPFNClassifier
 
 def get_ml_models():
     # Define models in pipelines with scaling where needed
     models = {
+        "TabPFN": TabPFNClassifier(),
         "Logistic Regression": make_pipeline(
             # StandardScaler(), 
             LogisticRegression(max_iter=200)),
