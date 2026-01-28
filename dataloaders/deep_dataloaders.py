@@ -123,7 +123,7 @@ def get_dataloaders_deep_learning(cfg, fold_index):
     test_dataset = CustomDataset(masih_root, masih_test_dict, train=False, use_coords=cfg.use_coords, use_demographic=cfg.use_demographic)
     train_loader = DataLoader(train_dataset, batch_size=cfg.batch_size, shuffle=True, num_workers=4, collate_fn=collate_fn, drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=cfg.batch_size, shuffle=False, num_workers=2, collate_fn=collate_fn)
-    test_loader = DataLoader(test_dataset, batch_size=cfg.batch_size, shuffle=False, collate_fn=collate_fn)
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, collate_fn=collate_fn)
     return train_loader, val_loader, test_loader
 
 

@@ -125,12 +125,16 @@ if __name__ == '__main__':
         data_root = "/home/reza/Documents/Reza_projects/08_drarabi_lymphnodes/new_dataset"
         results_root = "./Results"
         use_coords = True
-        use_demographic = True
+        use_demographic = False
         tta_method = 'norm'
     
     cfg = Args()
     for method in ['tent', 'norm']: #, 'norm'
-        for model in ['set_transformer']: #'graph', 'transformer', 'deep_sets', 'mil', 'set_transformer'
-            cfg.tta_method = method
-            cfg.model_name = model
-            fivefold_cv_tta(cfg)
+        for model in ['graph', 'transformer', 'deep_sets', 'mil', 'set_transformer']: #'graph', 'transformer', 'deep_sets', 'mil', 'set_transformer'
+            for use_coords in [True, False]:
+                for use_demo in [True, False]:
+                    cfg.use_coords = use_coords
+                    cfg.use_demographic = use_demo
+                    cfg.tta_method = method
+                    cfg.model_name = model
+                    fivefold_cv_tta(cfg)

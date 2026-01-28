@@ -114,7 +114,7 @@ def get_dataloaders_graph(cfg, fold_index):
     test_dataset = Sequence2GraphDataset(masih_root, masih_test_dict, use_coords=cfg.use_coords, use_demographic=cfg.use_demographic)
     train_loader = DataLoader(train_dataset, batch_size=cfg.batch_size, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_dataset, batch_size=256, shuffle=False, num_workers=2)
-    test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=2)
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=2)
     return train_loader, val_loader, test_loader
 
 def get_center2_as_test_loader_graph(cfg):
@@ -125,3 +125,82 @@ def get_center2_as_test_loader_graph(cfg):
     test_dataset = Sequence2GraphDataset(center2_root, center2_test_dict, use_coords=cfg.use_coords, use_demographic=cfg.use_demographic)
     test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=2)
     return test_loader
+
+#################################
+import numpy as np
+import torch
+from torch_geometric.utils import subgraph
+g = torch.Generator()
+
+def _subsample_single_graph_batch(batch, node_percentage):
+    """
+    batch: PyG Batch (but with batch_size=1, it's essentially one graph)
+    returns: a new batch with nodes/edges pruned
+    """
+    if node_percentage is None:
+        return batch
+
+    # number of nodes in the (single) graph
+    n = batch.x.size(0)
+    k = max(1, int(n * node_percentage))
+    if k >= n:
+        return batch
+
+    # IMPORTANT: randperm on CPU, then move to batch device
+    perm = torch.randperm(n, generator=g)
+    keep = perm[:k].to(batch.x.device)
+
+    edge_attr = getattr(batch, "edge_attr", None)
+
+    # keep induced subgraph + relabel nodes to 0..k-1
+    new_edge_index, new_edge_attr = subgraph(
+        subset=keep,
+        edge_index=batch.edge_index,
+        edge_attr=edge_attr,
+        relabel_nodes=True,
+        num_nodes=n,
+    )
+
+    # Mutate a shallow copy-like structure
+    # (avoid Batch.from_data_list; keep same type that your model already accepts)
+    batch.x = batch.x[keep]
+    batch.edge_index = new_edge_index
+    if new_edge_attr is not None:
+        batch.edge_attr = new_edge_attr
+
+    # batch.batch exists (all zeros) for single graph; re-make it to match new node count
+    if hasattr(batch, "batch") and batch.batch is not None:
+        batch.batch = batch.batch[keep]  # still all zeros, correct length
+
+    return batch
+
+
+def test_model_percentage_graph(model, test_loader, node_percentage=None):
+    model.eval()
+    all_preds, all_probs, all_labels = [], [], []
+
+    try:
+        device = model.device
+    except:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    with torch.no_grad():
+        for batch in test_loader: 
+
+            # keep everything on CPU first, then move to GPU like your working code
+            if node_percentage is not None:
+                # subsample on CPU, but subgraph needs tensors -> ensure consistent device
+                # easiest: move batch to device, subsample, then run model
+                batch = batch.to(device)
+                batch = _subsample_single_graph_batch(batch, node_percentage)
+            else:
+                batch = batch.to(device)  
+            logits = model(batch)  # EXACTLY like your working function
+            logits = logits.unsqueeze(0)
+            probs = torch.softmax(logits, dim=1)[:, 1]
+            preds = torch.argmax(logits, dim=1)
+            all_preds.extend(preds.detach().cpu().numpy())
+            all_probs.extend(probs.detach().cpu().numpy())
+            all_labels.extend(batch.y.long().detach().cpu().numpy())
+
+    return np.array(all_labels), np.array(all_preds), np.array(all_probs)

@@ -1,0 +1,17 @@
+[
+    {
+        "model": "set_transformer",
+        "Accuracy_Mean": 0.6224999999999999,
+        "Accuracy_STD": 0.016298006013006665,
+        "ROC_AUC_Mean": 0.666540404040404,
+        "ROC_AUC_STD": 0.014584563112256373,
+        "Precision_Mean": 0.6036655373611894,
+        "Precision_STD": 0.019605556805378312,
+        "Recall_Mean": 0.49444444444444446,
+        "Recall_STD": 0.18880717186629364,
+        "Specificity_Mean": 0.7272727272727273,
+        "Specificity_STD": 0.12856486930664507,
+        "F1_Score_Mean": 0.5257950660282253,
+        "F1_Score_STD": 0.10390889218014146
+    }
+]

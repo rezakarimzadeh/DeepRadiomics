@@ -1,6 +1,7 @@
 import yaml
 import torch 
 import numpy as np
+import os
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
 
 
@@ -13,6 +14,7 @@ def read_yaml_file(file_path: str) -> dict:
 def save_json(file_path: str, data: dict):
     """Save a dictionary to a JSON file."""
     import json
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, 'w') as f:
         json.dump(data, f, indent=4)
 

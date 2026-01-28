@@ -11,7 +11,7 @@ class Norm(nn.Module):
     with batch-wise statistics, just like batch norm does during training.
     """
 
-    def __init__(self, model, eps=1e-5, momentum=0.1,
+    def __init__(self, model, eps=1e-4, momentum=0.8,
                  reset_stats=False, no_stats=False):
         super().__init__()
         self.model = model
