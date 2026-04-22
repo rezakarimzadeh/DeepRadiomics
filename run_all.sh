@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Run set_transformer model with all combinations of use_coords and use_demographic
-python3 main.py --model_name set_transformer --use_coords False --use_demographic False
-python3 main.py --model_name set_transformer --use_coords True --use_demographic False
-python3 main.py --model_name set_transformer --use_coords False --use_demographic True
-python3 main.py --model_name set_transformer --use_coords True --use_demographic True
+# python3 main.py --model_name set_transformer --use_coords False --use_demographic False
+# python3 main.py --model_name set_transformer --use_coords True --use_demographic False
+# python3 main.py --model_name set_transformer --use_coords False --use_demographic True
+# python3 main.py --model_name set_transformer --use_coords True --use_demographic True
 
 # Run Transformer model with all combinations of use_coords and use_demographic
 # python3 main.py --model_name transformer --use_coords False --use_demographic False
@@ -47,3 +47,8 @@ python3 main.py --model_name set_transformer --use_coords True --use_demographic
 # python3 main.py --model_name mil --use_coords True --use_demographic True
 # python3 main.py --model_name graph --use_coords True --use_demographic True
 # python3 main.py --model_name ml_models --use_coords True --use_demographic True
+
+# Run age and gender classifiers with all combinations of use_age and use_gender
+# python3 age_gender_classifier_rebuttal.py --model_name ml_models --use_age True --use_gender True
+python3 age_gender_classifier_rebuttal.py --model_name ml_models --use_age True --use_gender False
+python3 age_gender_classifier_rebuttal.py --model_name ml_models --use_age False --use_gender True

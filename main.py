@@ -3,12 +3,13 @@ import shutil
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from models.deep_sets import RadiomicsDeepSets
 from models.transformer import RadiomicsTransformer
 from models.MIL import RadiomicsMIL
 from models.graph import RadiomicsGraph
 from models.set_transformer import RadiomicsSetTransformer
-from models.classical_ml import get_ml_models
+from models.classical_ml import get_ml_models, get_param_grids
 from dataloaders.deep_dataloaders import get_dataloaders_deep_learning, get_center2_as_test_loader
 from dataloaders.graph_dataloader import get_dataloaders_graph, get_center2_as_test_loader_graph
 from dataloaders.ml_dataloaders import get_dataloaders_ml, get_classical_test_loader_center2
@@ -126,17 +127,17 @@ def train_ml_model(argparse, fold_index: int):
     
     if argparse.use_coords and argparse.use_demographic:
         print(f"Training classical ML models with coords, demographic, radiomics features, Fold {fold_index}")
-        save_root = Path("Results") / "ml_models_coords_demographic_radiomics"
+        save_root = Path("Results") / "Rebuttal" / "ml_models_coords_demographic_radiomics"
     elif argparse.use_coords:
         print(f"Training classical ML models with coords, radiomics features, Fold {fold_index}")
-        save_root = Path("Results") / "ml_models_coords_radiomics"
+        save_root = Path("Results") / "Rebuttal" / "ml_models_coords_radiomics"
     elif argparse.use_demographic:
         print(f"Training classical ML models with demographic, radiomics features, Fold {fold_index}")
-        save_root = Path("Results") / "ml_models_demographic_radiomics"
+        save_root = Path("Results") / "Rebuttal" / "ml_models_demographic_radiomics"
     else:
         print(f"Training classical ML models with Radiomics features, Fold {fold_index}")
-        save_root = Path("Results") / "ml_models_radiomics"
-    
+        save_root = Path("Results") / "Rebuttal" / "ml_models_radiomics"
+
     save_dir = save_root / f"fold_{fold_index}"
     if not save_dir.exists():
         save_dir.mkdir(parents=True, exist_ok=True)
@@ -150,10 +151,42 @@ def train_ml_model(argparse, fold_index: int):
     center2_results = []
     center2_fold_results = {}
     
+    # for name, model in models.items():
+        # model.fit(X_train, y_train)
+        # y_pred = model.predict(X_test)
+        # y_prob = model.predict_proba(X_test)[:, 1]
+
+    # grid search for hyperparameter tuning
+    param_grids = get_param_grids()
+    inner_cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+
     for name, model in models.items():
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        y_prob = model.predict_proba(X_test)[:, 1]
+        print(f"Tuning and training: {name}")
+
+        param_grid = param_grids.get(name, None)
+
+        if param_grid is not None:
+            search = GridSearchCV(
+                estimator=model,
+                param_grid=param_grid,
+                cv=inner_cv,
+                scoring="roc_auc",
+                n_jobs=-1,
+                refit=True
+            )
+            search.fit(X_train, y_train)
+            best_model = search.best_estimator_
+            best_params = search.best_params_
+            best_inner_score = search.best_score_
+        else:
+            best_model = model
+            best_model.fit(X_train, y_train)
+            best_params = {}
+            best_inner_score = None
+
+        y_pred = best_model.predict(X_test)
+        y_prob = best_model.predict_proba(X_test)[:, 1]
+
         metrics = compute_classification_metrics(name, y_test, y_pred, y_prob)
         results.append(metrics)
 
@@ -163,8 +196,8 @@ def train_ml_model(argparse, fold_index: int):
         save_json(save_dir / f"results_fold_{fold_index}.json", fold_results)
 
         # Center2 test
-        center2_y_pred = model.predict(center2_X_test)
-        center2_y_prob = model.predict_proba(center2_X_test)[:, 1]
+        center2_y_pred = best_model.predict(center2_X_test)
+        center2_y_prob = best_model.predict_proba(center2_X_test)[:, 1]
         center2_metrics = compute_classification_metrics(name, center2_y_test, center2_y_pred, center2_y_prob)
         center2_results.append(center2_metrics)
         center2_fold_results[name] = {'info': "Center2 Test Results without TTA",

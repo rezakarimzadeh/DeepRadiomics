@@ -46,7 +46,7 @@ class RadiomicsTransformer(pl.LightningModule):
         self.auroc = BinaryAUROC()
         self.f1 = BinaryF1Score()
 
-    def forward(self, x, pad_mask=None):
+    def forward(self, x, pad_mask=None, get_embeddings=False):
         """
         x: [B, T, F]
         pad_mask: [B, T] bool, True = PAD (ignored)
@@ -67,7 +67,9 @@ class RadiomicsTransformer(pl.LightningModule):
         else:
             x = x.mean(dim=1)
 
-        logits = self.head(x).squeeze(1)                   
+        logits = self.head(x).squeeze(1) 
+        if get_embeddings:
+            return logits, x                  
         return logits
 
     def _shared_step(self, batch, stage):

@@ -4,6 +4,7 @@ import os
 import json
 import torch
 import numpy as np
+import scipy
 
 
 def read_json(file_path):   
@@ -35,11 +36,28 @@ def prepare_data(data_dict, data_root, use_coords, use_demographic):
             # print(f"No valid lesions found for {sample_dir_name}, skipping.")
             continue
         aggregated_radiomics = np.array(aggregated_radiomics)
+        skew_vals = scipy.stats.skew(
+            aggregated_radiomics, 
+            axis=0, 
+            nan_policy='omit'
+        )
+
+        # Replace remaining NaNs
+        skew_vals = np.nan_to_num(skew_vals, nan=0.0)
         set_level_aggrigation = np.concatenate([aggregated_radiomics.mean(axis=0),
-                                                # aggregated_radiomics.std(axis=0),
+                                                # add std deviation
+                                                aggregated_radiomics.std(axis=0),
                                                 np.median(aggregated_radiomics, axis=0),
                                                 aggregated_radiomics.max(axis=0),
-                                                aggregated_radiomics.min(axis=0)])
+                                                aggregated_radiomics.min(axis=0),
+                                                # add skewness 
+                                                skew_vals,
+        ])
+        # print(skew_vals)
+        if np.isnan(set_level_aggrigation).any():
+            print(f"NaN values found in features for {sample_dir_name}, skipping.")
+            # print(set_level_aggrigation)
+            # continue
         aggregated_data.append({ "features": set_level_aggrigation, "label": hl_label, "ID": sample_dir_name, "nodes_coordinates": nodes_coordinates_list })
 
     return aggregated_data
@@ -112,3 +130,87 @@ def get_classical_dataloaders(config, fold_index):
     test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False)
     return train_loader, val_loader, test_loader
 
+# ================= demographic features ================= #
+
+def prepare_demographic_data(data_dict, data_root, use_age, use_gender):
+    aggregated_data = list()
+    for idx in range(len(data_dict)):
+        (sample_dir_name, sample_info) = list(data_dict[idx].items())[0]
+        hl_label = 0 if sample_info['Binary Label'] == 'NHL' else 1
+        radiomics_path = os.path.join(data_root, sample_dir_name, 'radiomics', 'radiomics_each_lesion.json')
+        radiomics_features_dict = read_json(radiomics_path)
+
+        aggregated_features = []
+        nodes_coordinates_list = list(radiomics_features_dict.keys())
+        for node, radiomics_features in radiomics_features_dict.items():
+            if use_age:
+                aggregated_features.append(sample_info['Age'])
+            if use_gender:
+                aggregated_features.append(sample_info['Gender(Male=0, Fmale:1)'])
+            break  # We only need to add demographic features once per patient, so we break after the first lesion
+        if not aggregated_features:
+            # print(f"No valid lesions found for {sample_dir_name}, skipping.")
+            continue
+        aggregated_features = np.array(aggregated_features)
+        
+        aggregated_data.append({ "features": aggregated_features, "label": hl_label, "ID": sample_dir_name})#), "nodes_coordinates": nodes_coordinates_list })
+
+    return aggregated_data
+
+def get_demographic_ml_center1(config, fold_index):
+    masih_train_dict, masih_val_dict, masih_test_dict = get_masih_data_folds(config.data_root, fold_index)
+    masih_root = os.path.join(config.data_root, "Masih-SUV")
+    
+    masih_train = masih_train_dict + masih_val_dict
+    masih_aggregated_data_dicts = prepare_demographic_data(masih_train, masih_root, config.use_age, config.use_gender)
+    train_data = [d['features'] for d in masih_aggregated_data_dicts]
+    train_labels = [d['label'] for d in masih_aggregated_data_dicts]
+    X_train = np.asarray(train_data)
+    y_train = np.asarray(train_labels)
+
+    masih_test_aggregated_data_dicts = prepare_demographic_data(masih_test_dict, masih_root, config.use_age, config.use_gender)
+    test_data = [d['features'] for d in masih_test_aggregated_data_dicts]
+    test_labels = [d['label'] for d in masih_test_aggregated_data_dicts]
+    X_test = np.asarray(test_data)
+    y_test = np.asarray(test_labels)
+    return X_train, y_train, X_test, y_test
+
+def get_demographic_ml_center2(config):
+    test_dataset = read_json(os.path.join(config.data_root, "dataset_directories.json"))
+    test_dataset = test_dataset.get("Razavi-SUV", [])
+    center2_root = os.path.join(config.data_root, "Razavi-SUV")
+    center2_aggregated_data_dicts = prepare_demographic_data(test_dataset, center2_root, config.use_age, config.use_gender)
+    train_data = [d['features'] for d in center2_aggregated_data_dicts]
+    train_labels = [d['label'] for d in center2_aggregated_data_dicts]
+    X_train = np.asarray(train_data)
+    y_train = np.asarray(train_labels)
+    return X_train, y_train
+
+# ================= domain shift study data ================= #
+def get_aggregated_data_domain_shift_study(config, fold_index=0):
+    masih_train_dict, masih_val_dict, masih_test_dict = get_masih_data_folds(config.data_root, fold_index)
+    masih_root = os.path.join(config.data_root, "Masih-SUV")
+    
+    center_1 = masih_train_dict + masih_val_dict + masih_test_dict
+    center1_data_dicts = prepare_data(center_1, masih_root, config.use_coords, config.use_demographic)
+    center1_data = [d['features'] for d in center1_data_dicts]
+    center1_labels = [d['label'] for d in center1_data_dicts]
+
+    c2_dataset = read_json(os.path.join(config.data_root, "dataset_directories.json"))
+    center2_dataset = c2_dataset.get("Razavi-SUV", [])
+    center2_root = os.path.join(config.data_root, "Razavi-SUV")
+    center2_aggregated_data_dicts = prepare_data(center2_dataset, center2_root, config.use_coords, config.use_demographic)
+    center2_data = [d['features'] for d in center2_aggregated_data_dicts]
+    center2_labels = [d['label'] for d in center2_aggregated_data_dicts]
+
+    output = {
+        "center1": {
+            "data": np.asarray(center1_data),
+            "labels": np.asarray(center1_labels)
+        },
+        "center2": {
+            "data": np.asarray(center2_data),
+            "labels": np.asarray(center2_labels)
+        }
+    }
+    return output

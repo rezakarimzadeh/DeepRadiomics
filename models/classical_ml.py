@@ -12,6 +12,7 @@ from sklearn.ensemble import AdaBoostClassifier
 # from pytorch_tabnet.tab_model import TabNetClassifier
 from sklearn.neural_network import MLPClassifier
 from tabpfn import TabPFNClassifier
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
 def get_ml_models():
     # Define models in pipelines with scaling where needed
@@ -68,3 +69,66 @@ def get_ml_models():
     }
     return models
 
+
+def get_param_grids():
+    param_grids = {
+        "TabPFN": None,
+
+        "Logistic Regression": {
+            "logisticregression__C": [0.01, 0.1, 1, 10]
+        },
+
+        "Random Forest": {
+            "n_estimators": [100, 200],
+            "max_depth": [None, 5, 10]
+        },
+
+        "SVM (RBF kernel)": {
+            "svc__C": [0.1, 1, 10],
+            "svc__gamma": ["scale", "auto"]
+        },
+
+        "Gradient Boosting": {
+            "n_estimators": [50, 100],
+            "learning_rate": [0.01, 0.1],
+            "max_depth": [2, 3]
+        },
+
+        "k-Nearest Neighbors": {
+            "kneighborsclassifier__n_neighbors": [3, 5, 7]
+        },
+
+        "XGBoost": {
+            "n_estimators": [50, 100],
+            "learning_rate": [0.01, 0.1],
+            "max_depth": [2, 4]
+        },
+
+        "lightGBM": {
+            "n_estimators": [50, 100],
+            "learning_rate": [0.01, 0.1],
+            "num_leaves": [11, 31]
+        },
+
+        "CatBoost": {
+            "iterations": [50, 100],
+            "learning_rate": [0.01, 0.1],
+            "depth": [4, 6]
+        },
+
+        "Extra Trees": {
+            "n_estimators": [100, 200],
+            "max_depth": [None, 10]
+        },
+
+        "AdaBoost": {
+            "n_estimators": [50, 100],
+            "learning_rate": [0.01, 0.1, 1.0]
+        },
+
+        "MLP": {
+            "mlpclassifier__hidden_layer_sizes": [(64,), (96, 64), (128, 64)],
+            "mlpclassifier__alpha": [0.0001, 0.001]
+        }
+    }
+    return param_grids
