@@ -30,13 +30,66 @@ def get_segmentation_volume_ml(np_image, voxel_volume):
 # -----------------------------
 # New minimal biomarker helpers
 # -----------------------------
+# def compute_patient_pet_biomarkers(img_array, seg_array, voxel_volume):
+#     """
+#     Minimal implementation:
+#       - lesion MTV = lesion mask volume
+#       - patient TMTV = sum of lesion MTVs
+#       - patient SUVmax = max SUV across all lesion voxels
+#     """
+#     unique_labels = np.unique(seg_array)
+
+#     suvmax_patient = None
+#     lesion_mtvs = []
+
+#     for label in unique_labels:
+#         if label == 0:
+#             continue
+
+#         label_mask = (seg_array == label)
+#         volume_ml = get_segmentation_volume_ml(label_mask.astype(np.uint8), voxel_volume)
+
+#         # keep same lesion-size rule as your radiomics pipeline
+#         if volume_ml < 1.0:
+#             continue
+
+#         lesion_values = img_array[label_mask]
+#         if lesion_values.size == 0:
+#             continue
+
+#         lesion_suvmax = float(np.max(lesion_values))
+#         lesion_mtvs.append(float(volume_ml))
+
+#         if suvmax_patient is None:
+#             suvmax_patient = lesion_suvmax
+#         else:
+#             suvmax_patient = max(suvmax_patient, lesion_suvmax)
+
+#     if len(lesion_mtvs) == 0:
+#         return None
+
+#     tmtv = float(np.sum(lesion_mtvs))
+
+#     # In this lesion-based setup, patient-level MTV and TMTV are identical
+#     return {
+#         "SUVmax": float(suvmax_patient),
+#         "MTV": tmtv,
+#         "TMTV": tmtv,
+#         "num_lesions_used": int(len(lesion_mtvs))
+#     }
+
+
 def compute_patient_pet_biomarkers(img_array, seg_array, voxel_volume):
     """
-    Minimal implementation:
-      - lesion MTV = lesion mask volume
-      - patient TMTV = sum of lesion MTVs
-      - patient SUVmax = max SUV across all lesion voxels
+    Patient-level PET biomarkers
+
+    SUVmax = maximum SUV across all lesions
+    MTV    = largest lesion MTV (mL)
+    TMTV   = sum of MTVs of all lesions (mL)
+
+    Assumes each non-zero label in seg_array represents a separate lesion.
     """
+
     unique_labels = np.unique(seg_array)
 
     suvmax_patient = None
@@ -47,17 +100,23 @@ def compute_patient_pet_biomarkers(img_array, seg_array, voxel_volume):
             continue
 
         label_mask = (seg_array == label)
-        volume_ml = get_segmentation_volume_ml(label_mask.astype(np.uint8), voxel_volume)
+
+        volume_ml = get_segmentation_volume_ml(
+            label_mask.astype(np.uint8),
+            voxel_volume
+        )
 
         # keep same lesion-size rule as your radiomics pipeline
         if volume_ml < 1.0:
             continue
 
         lesion_values = img_array[label_mask]
+
         if lesion_values.size == 0:
             continue
 
         lesion_suvmax = float(np.max(lesion_values))
+
         lesion_mtvs.append(float(volume_ml))
 
         if suvmax_patient is None:
@@ -68,12 +127,15 @@ def compute_patient_pet_biomarkers(img_array, seg_array, voxel_volume):
     if len(lesion_mtvs) == 0:
         return None
 
+    # Total MTV across all lesions
     tmtv = float(np.sum(lesion_mtvs))
 
-    # In this lesion-based setup, patient-level MTV and TMTV are identical
+    # MTV of the largest lesion
+    mtv = float(np.max(lesion_mtvs))
+
     return {
         "SUVmax": float(suvmax_patient),
-        "MTV": tmtv,
+        "MTV": mtv,
         "TMTV": tmtv,
         "num_lesions_used": int(len(lesion_mtvs))
     }
@@ -172,9 +234,9 @@ if __name__ == "__main__":
 
     '''
     Patient-level biomarker summary:
-        Center Label  N SUVmax, median [IQR] MTV (mL), median [IQR] TMTV (mL), median [IQR]
-    Masih-SUV    HL 85   11.56 [8.11–14.48]   86.67 [30.07–213.70]    86.67 [30.07–213.70]
-    Masih-SUV   NHL 64   18.14 [9.61–25.20]   96.71 [26.23–334.76]    96.71 [26.23–334.76]
-    Razavi-SUV    HL 36  14.13 [10.30–16.79]   86.28 [39.87–134.01]    86.28 [39.87–134.01]
-    Razavi-SUV   NHL 44  20.33 [13.78–28.11]  152.08 [59.15–355.11]   152.08 [59.15–355.11]
+    Center Label  N SUVmax, median [IQR] MTV (mL), median [IQR] TMTV (mL), median [IQR]
+    Masih-SUV    HL 85   11.56 [8.11–14.48]    24.87 [13.96–51.68]    86.67 [30.07–213.70]
+    Masih-SUV   NHL 66   18.14 [9.61–25.20]   39.23 [12.54–113.65]    96.71 [26.23–334.76]
+    Razavi-SUV    HL 36  14.13 [10.30–16.79]    26.95 [14.63–66.22]    86.28 [39.87–134.01]
+    Razavi-SUV   NHL 44  20.33 [13.78–28.11]   69.26 [28.84–165.31]   152.08 [59.15–355.11]
     '''
